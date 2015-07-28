@@ -1,0 +1,67 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "ubuntu14.04-common-roles-base"
+  #config.vm.box_url = "https://github.com/kraksoft/vagrant-box-ubuntu/releases/download/14.04/ubuntu-14.04-amd64.box"
+
+  config.ssh.forward_agent = true
+
+  config.vm.define :node1 do |node|
+    node.vm.box = "ubuntu14.04-common-roles-base"
+    node.vm.network :forwarded_port, guest:22, host:2091, id:"ssh"
+    node.vm.network :forwarded_port, guest:80, host:8090, id:"http"
+    node.vm.network :private_network, ip:"192.168.33.91"
+    #node.vm.network :private_network, ip:"192.168.33.91", virtualbox__intnet: "test_net"
+    #node.vm.network :public_network, bridge:"en0: Wi-Fi (AirPort)"
+    #node.vm.network :public_network
+    # config.vm.provision "ansible" do |ansible|
+    #   ansible.playbook = "ansible/common-roles-base/site.yml"
+    #   ansible.inventory_path = "ansible/common-roles-base/production"
+    #   ansible.limit = "all"
+    #   ansible.tags = 'ubuntu'
+    #   ansible.verbose = 'vvv'
+    #   ansible.sudo = true
+    # end
+  end
+
+  config.vm.define :redmine do |node|
+    node.vm.box = "ubuntu14.04-common-roles-base"
+    node.vm.network :forwarded_port, guest:22, host:2092, id:"ssh"
+    node.vm.network :forwarded_port, guest:80, host:8091, id:"http"
+    node.vm.network :private_network, ip:"192.168.33.92"
+    #node.vm.network :private_network, ip:"192.168.33.92", virtualbox__intnet: "test_net"
+    #node.vm.network :public_network, bridge:"en0: Wi-Fi (AirPort)"
+    #node.vm.network :public_network
+    config.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "2048"]
+    end
+    config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "ansible/redmine-serer/site.yml"
+      ansible.inventory_path = "ansible/redmine-serer/production"
+      ansible.limit = "all"
+      ansible.tags = 'redmine'
+      ansible.verbose = 'vvv'
+      ansible.sudo = true
+    end
+  end
+
+  config.vm.define :redmine2 do |node|
+    node.vm.box = "ubuntu14.04-common-roles-base"
+    node.vm.network :forwarded_port, guest:22, host:2093, id:"ssh"
+    node.vm.network :forwarded_port, guest:80, host:8092, id:"http"
+    node.vm.network :private_network, ip:"192.168.33.93"
+    config.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "2048"]
+    end
+    config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "ansible/redmine-serer/site.yml"
+      ansible.inventory_path = "ansible/redmine-serer/production"
+      ansible.limit = "all"
+      ansible.tags = 'redmine'
+      ansible.verbose = 'vvv'
+      ansible.sudo = true
+    end
+  end
+
+end
