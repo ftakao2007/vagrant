@@ -1,0 +1,23 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "centos65-x86_64-20140116"
+  config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
+
+  config.vm.define :node1 do |node|
+    node.vm.box = "centOS65Box"
+    node.vm.network :private_network, ip:"192.168.33.201", virtualbox__intnet: "test_net"
+  end
+
+  config.vm.define :node2 do |node|
+    node.vm.box = "centOS65Box"
+    node.vm.network :private_network, ip:"192.168.33.202", virtualbox__intnet: "test_net"
+  end
+
+end
+
+# ホストからゲストへは vagrant ssh でアクセス可能。
+# ホスト及び外部ネットワークからは ssh 192.168.33.20X でアクセス出来ない。
+# ノード間の閉じたネットワーク(仮想内部ネットワーク)同士のみアクセス可能。
+# virtualbox__intnet を指定することでゲストOS同士の仮想内部ネットワークを構築できる。

@@ -1,0 +1,26 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "centos65-x86_64-20140116"
+  config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
+
+  config.vm.define :node1 do |node|
+    node.vm.box = "centOS65Box"
+    # node.vm.network :public_network, bridge:"en3: iPhone USB"
+    # node.vm.network :public_network, bridge:"en0: Wi-Fi (AirPort)"
+    # node.vm.network :public_network, ip:"192.168.33.111", netmask:"255.255.255.0", bridge:"en0: Wi-Fi (AirPort)"
+    node.vm.network :public_network
+  end
+end
+
+# 外部ネットワークから接続できるようにするための設定。
+# en3はiPhoneのUSB接続でネットワークに接続するときの設定。
+# en0はWi-Fiで接続するときの設定。
+# Bluetoothだとまたインターフェースが変わるはず。
+# またMacBookAirとProによるインタフェースの違いもあるようなので注意。
+# はじめはbridgeオプション無しで試してみると良いかも。
+#
+# IPアドレスを指定して起動すると、ゲスト側ではちゃんと設定できているように見えるが
+# ホストや外部ネットワークからは接続できなかった。
+# IPを指定せず、DHCPで自動的に割り当てられたIPアドレスだとアクセスできた。

@@ -1,0 +1,19 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "centos65-x86_64-20140116"
+  config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
+
+  config.vm.define :node1 do |node|
+    node.vm.box = "centOS65Box"
+    node.vm.network :forwarded_port, guest:22, host:2091, id:"ssh"
+    node.vm.network :forwarded_port, guest:80, host:8090, id:"http"
+    node.vm.network :private_network, ip:"192.168.33.201"
+  end
+
+end
+
+# ホストから ssh 127.0.0.1 -l vagrant -p 2091 もしくは ssh 192.168.33.201 -l vagrant -p 22 でsshアクセス可能。
+# ホストから http://127.0.0.1:8090 もしくは http://192.168.33.201:80 でhttpアクセス可能。
+# 実際ホスト側で lsof -i :2091 や lsof -i :8090 を実行するとLISTEN状態になっている。

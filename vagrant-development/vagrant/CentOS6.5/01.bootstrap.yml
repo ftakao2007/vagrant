@@ -1,0 +1,112 @@
+#! vi: set filetype=ansible:
+---
+- hosts : all
+  remote_user : vagrant
+  sudo : True
+  tasks :
+
+    # OS Update
+    # -------------------------------------------
+    - name : Yum Package Upgrade
+      yum : name=* state=latest
+
+    # Base Package Group Install
+    # -------------------------------------------
+    - name: Base Package GroupInstall
+      yum:  name="{{ item }}" state=latest
+      with_items:
+        - "@Compatibility libraries"
+        - "@Legacy UNIX compatibility"
+        - "@Performance tools"
+        - "@Perl Support"
+        - "@Server Platform"
+        - "@Additional Development"
+        - "@Development Tools"
+        - "@Server Platform Development"
+        - "libselinux-python"
+
+    # Add epel
+    # -----------------------------------------------------------------------
+    - name: Install epel repo
+      yum:  >-
+        name="http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
+        state=present
+    - replace: >-
+        dest=/etc/yum.repos.d/{{ item }}
+        regexp='enabled=1'
+        replace='enabled=0'
+        backup=yes
+      with_items:
+        - "epel.repo"
+        - "epel-testing.repo"
+
+    # Utility Package Install
+    # -----------------------------------------------------------------------
+    - name: Install Utility
+      yum:  >-
+        name="{{ item }}"
+        state=latest
+      with_items:
+        - "ntp"
+        - "telnet"
+        - "ltrace"
+        - "dstat"
+    - yum: >-
+        name="{{ item }}"
+        state=latest
+        enablerepo=epel
+      with_items:
+        - "bash-completion"
+
+
+    # service configure
+    # -----------------------------------------------------------------------
+    # Stop Unuse service
+    - name: Stop Unuse Service
+      service: name="{{ item }}" enabled=no state=stopped
+      with_items:
+        - "libvirt-guests"
+        - "messagebus"
+        - "netconsole"
+        - "portreserve"
+        - "rpcbind"
+        - "udev-post"
+
+
+    # Disable SELinux
+    - name: Disable SELinux
+      selinux: state=disabled
+
+    # Enable Postfix
+    - name: Enable Postfix
+      service: name=postfix enabled=yes
+
+
+    # Other Basic Configure
+    # -----------------------------------------------------------------------
+    - name: SSH Configure
+      replace: >-
+        dest=/etc/ssh/sshd_config
+        regexp='#PermitRootLogin yes'
+        replace='PermitRootLogin no'
+        backup=yes
+      notify:
+        - ssh restart
+
+    - name: Disable IPv6
+      file:  >-
+        state=touch
+        dest=/etc/modprobe.d/disable-ipv6.conf
+        owner=root
+        group=root
+        mode=644
+    - lineinfile: >-
+        dest='{{ item.dest }}'
+        line='{{ item.line }}'
+      with_items:
+        - { dest: "/etc/sysconfig/network",            line: "NETWORKING_IPV6=no"     }
+        - { dest: "/etc/modprobe.d/disable-ipv6.conf", line: "options ipv6 disable=1" }
+
+  handlers:
+    - name: ssh restart
+      service: name=sshd state=restarted
