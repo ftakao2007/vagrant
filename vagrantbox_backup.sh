@@ -2,7 +2,8 @@
 
 NOW=`date +%Y%m%d`
 BACKUP_DIR="vagrantbox_backup"
-VM_NAME="${VM_NAME}"
+#VM_NAME="${VM_NAME}"
+VM_NAME="redmine"
 BOX_NAME="ubuntu-14.04-${VM_NAME}.${NOW}.box"
 
 if [ ! -d "${BACKUP_DIR}" ]; then mkdir ${BACKUP_DIR}; fi
