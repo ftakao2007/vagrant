@@ -1,0 +1,19 @@
+Vagrant.configure('2') do |config|
+  config.vm.hostname              = ENV['DO_HOSTNAME']  # 好きなhostnameに変更
+
+  config.vm.provider :digital_ocean do |provider, override|
+    provider.client_id            = ENV['DO_CLIENT_ID']  # https://cloud.digitalocean.com/api_access で取得したclient_idを指定
+    provider.api_key              = ENV['DO_API_KEY']    # https://cloud.digitalocean.com/api_access で取得したapi_keyを指定
+    provider.ssh_key_name         = ENV['DO_PUBLIC_KEY']    # https://cloud.digitalocean.com/ssh_keys   で設定したSSH鍵名を指定
+    provider.token                = ENV['DO_PERSONAL_ACCESS_TOKEN']      # https://cloud.digitalocean.com/settings/applications  で設定したtokenを指定
+
+    override.ssh.private_key_path = ENV['DO_PRIVATE_KEY_PATH']
+    override.vm.box               = 'digital_ocean'
+    override.vm.box_url           = "https://github.com/smdahlen/vagrant-digitalocean/raw/master/box/digital_ocean.box"
+
+    provider.image                = 'centos-7-0-x64'
+    provider.region               = 'sgp1'
+    provider.size                 = '512MB' # 1GB
+    provider.ca_path              = ENV['DO_CA_PATH']
+  end
+end
